@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MapLinky – Convert Any Location to Google, Apple & OSM Links</title>
+  <meta name="description" content="Paste a maps link, address, or place name and instantly get equivalent links for Google Maps, Apple Maps, and OpenStreetMap." />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- ── Header ───────────────────────────────────────────────────────── -->
+    <header>
+      <h1>Map<span>Linky</span></h1>
+      <p>Convert any location into links for Google Maps, Apple Maps &amp; OpenStreetMap</p>
+    </header>
+
+    <!-- ── Input ────────────────────────────────────────────────────────── -->
+    <section class="input-section">
+      <form id="convert-form" autocomplete="off">
+        <div class="input-row">
+          <input
+            id="location-input"
+            type="text"
+            placeholder="Paste a maps link, address, or place name"
+            aria-label="Location input"
+            autofocus
+            spellcheck="false"
+          />
+          <button type="submit" class="btn-primary">Convert</button>
+        </div>
+      </form>
+      <p id="input-type-label" aria-live="polite"></p>
+    </section>
+
+    <!-- ── Spinner ──────────────────────────────────────────────────────── -->
+    <div id="spinner" role="status" aria-label="Resolving location">
+      <div class="spinner-ring"></div>
+      <span>Resolving location…</span>
+    </div>
+
+    <!-- ── Notice (errors / warnings) ──────────────────────────────────── -->
+    <div id="notice" class="notice" role="alert" aria-live="assertive"></div>
+
+    <!-- ── Results ──────────────────────────────────────────────────────── -->
+    <section id="results" aria-label="Converted map links">
+
+      <!-- Platform cards -->
+      <div class="platform-cards">
+
+        <!-- Google Maps -->
+        <div class="platform-card" id="card-google">
+          <div class="platform-card__header">
+            <span class="platform-icon" aria-hidden="true">🗺️</span>
+            Google Maps
+          </div>
+          <p class="card-link" aria-label="Google Maps link"></p>
+          <div class="platform-card__actions">
+            <button class="btn-copy" aria-label="Copy Google Maps link">Copy</button>
+            <a class="btn-open" href="#" target="_blank" rel="noopener noreferrer" aria-label="Open in Google Maps">Open</a>
+          </div>
+        </div>
+
+        <!-- Apple Maps -->
+        <div class="platform-card" id="card-apple">
+          <div class="platform-card__header">
+            <span class="platform-icon" aria-hidden="true">🍎</span>
+            Apple Maps
+          </div>
+          <p class="card-link" aria-label="Apple Maps link"></p>
+          <div class="platform-card__actions">
+            <button class="btn-copy" aria-label="Copy Apple Maps link">Copy</button>
+            <a class="btn-open" href="#" target="_blank" rel="noopener noreferrer" aria-label="Open in Apple Maps">Open</a>
+          </div>
+        </div>
+
+        <!-- OpenStreetMap -->
+        <div class="platform-card" id="card-osm">
+          <div class="platform-card__header">
+            <span class="platform-icon" aria-hidden="true">🌍</span>
+            OpenStreetMap
+          </div>
+          <p class="card-link" aria-label="OpenStreetMap link"></p>
+          <div class="platform-card__actions">
+            <button class="btn-copy" aria-label="Copy OpenStreetMap link">Copy</button>
+            <a class="btn-open" href="#" target="_blank" rel="noopener noreferrer" aria-label="Open in OpenStreetMap">Open</a>
+          </div>
+        </div>
+
+      </div><!-- /.platform-cards -->
+
+      <!-- Map preview (Leaflet) -->
+      <div id="map-preview" aria-label="Map preview"></div>
+
+      <!-- Place card -->
+      <div id="place-card" aria-label="Location details">
+        <p class="place-name"></p>
+        <p class="place-address"></p>
+        <p class="place-summary"></p>
+      </div>
+
+    </section><!-- /#results -->
+
+    <!-- ── Footer ───────────────────────────────────────────────────────── -->
+    <footer>
+      No ads · No tracking · No sign-up &nbsp;·&nbsp; Powered by
+      <a href="https://ai.google.dev/" target="_blank" rel="noopener noreferrer">Gemini</a>
+      &amp;
+      <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer">Leaflet</a>
+    </footer>
+
+  </div><!-- /.container -->
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- App (ES modules) -->
+  <script type="module" src="app.js"></script>
+
+</body>
+</html>
