@@ -38,8 +38,8 @@ export function renderMap(containerId, lat, lng) {
     markerInstance.setLatLng([lat, lng]);
   }
 
-  // Force a resize in case the container was previously hidden.
-  mapInstance.invalidateSize();
+  // Force a resize after the browser has painted the container.
+  setTimeout(() => mapInstance.invalidateSize(), 100);
 }
 
 /**

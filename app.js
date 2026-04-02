@@ -10,7 +10,7 @@
  */
 
 import { isGoogleMapsUrl, extractGoogleLatLng, buildGoogleLink } from './platforms/google.js';
-import { isAppleMapsUrl, extractAppleLatLng, buildAppleLink } from './platforms/apple.js';
+import { isAppleMapsUrl, isAppleShortLink, extractAppleLatLng, buildAppleLink } from './platforms/apple.js';
 import { isOsmUrl, extractOsmLatLng, buildOsmLink } from './platforms/osm.js';
 import { resolveLocation } from './ai/resolver.js';
 import { renderMap, destroyMap } from './ui/map-preview.js';
@@ -67,19 +67,54 @@ async function resolveInput(raw) {
       );
       setInputTypeLabel('Google short link – resolving via AI…');
     } else {
-      const coords = extractGoogleLatLng(raw);
-      if (coords) {
+      const parsed = extractGoogleLatLng(raw);
+      if (parsed) {
+        const { lat, lng, place_name } = parsed;
         setInputTypeLabel('Detected: Google Maps URL');
-        return { coords, meta: {} };
+        if (place_name) {
+          try {
+            const enriched = await resolveLocation(place_name);
+            return {
+              coords: { lat, lng },
+              meta: {
+                place_name: enriched.place_name || place_name,
+                normalized_address: enriched.normalized_address,
+                place_summary: enriched.place_summary,
+              },
+            };
+          } catch { /* enrichment failed — return coords with name only */ }
+        }
+        return { coords: { lat, lng }, meta: { place_name } };
       }
     }
   }
 
   if (isAppleMapsUrl(raw)) {
-    const coords = extractAppleLatLng(raw);
-    if (coords) {
-      setInputTypeLabel('Detected: Apple Maps URL');
-      return { coords, meta: {} };
+    if (isAppleShortLink(raw)) {
+      throw Object.assign(
+        new Error("Apple short links don't include location data. Please share the full Apple Maps URL instead (tap Share → Copy Link in Apple Maps)."),
+        { code: 'NOT_FOUND' }
+      );
+    } else {
+      const parsed = extractAppleLatLng(raw);
+      if (parsed) {
+        const { lat, lng, place_name, normalized_address } = parsed;
+        setInputTypeLabel('Detected: Apple Maps URL');
+        if (place_name) {
+          try {
+            const enriched = await resolveLocation(place_name);
+            return {
+              coords: { lat, lng },
+              meta: {
+                place_name: enriched.place_name || place_name,
+                normalized_address: enriched.normalized_address || normalized_address,
+                place_summary: enriched.place_summary,
+              },
+            };
+          } catch { /* enrichment failed — return what we have */ }
+        }
+        return { coords: { lat, lng }, meta: { place_name, normalized_address } };
+      }
     }
   }
 
@@ -204,13 +239,7 @@ function showError(err) {
   const code = err.code;
   let message;
 
-  if (code === 'RATE_LIMIT') {
-    message = err.message;
-  } else if (code === 'NOT_FOUND') {
-    message = "We couldn't find that location. Try a full address or landmark name.";
-  } else {
-    message = err.message || 'Something went wrong. Please try again.';
-  }
+  message = err.message || 'Something went wrong. Please try again.';
 
   showNotice('error', message);
   hidePlaceCard();

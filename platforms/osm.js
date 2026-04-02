@@ -2,9 +2,6 @@
  * OpenStreetMap URL detector and link builder.
  */
 
-/**
- * Returns true if the input looks like an OSM URL.
- */
 export function isOsmUrl(input) {
   const s = input.trim();
   return (
@@ -15,11 +12,12 @@ export function isOsmUrl(input) {
 
 /**
  * Attempts to extract { lat, lng } from an OSM URL.
- * OSM uses #map=zoom/lat/lng
  */
 export function extractOsmLatLng(url) {
+  const decoded = decodeUrl(url);
+
   // #map=zoom/lat/lng
-  const hashMatch = url.match(/#map=\d+\/(-?\d+\.?\d*)\/(-?\d+\.?\d*)/);
+  const hashMatch = decoded.match(/#map=\d+\/(-?\d+\.?\d*)\/(-?\d+\.?\d*)/);
   if (hashMatch) {
     const lat = parseFloat(hashMatch[1]);
     const lng = parseFloat(hashMatch[2]);
@@ -27,8 +25,8 @@ export function extractOsmLatLng(url) {
   }
 
   // ?mlat=lat&mlon=lng
-  const mlatMatch = url.match(/[?&]mlat=(-?\d+\.?\d*)/);
-  const mlonMatch = url.match(/[?&]mlon=(-?\d+\.?\d*)/);
+  const mlatMatch = decoded.match(/[?&]mlat=(-?\d+\.?\d*)/);
+  const mlonMatch = decoded.match(/[?&]mlon=(-?\d+\.?\d*)/);
   if (mlatMatch && mlonMatch) {
     const lat = parseFloat(mlatMatch[1]);
     const lng = parseFloat(mlonMatch[1]);
@@ -43,6 +41,14 @@ export function extractOsmLatLng(url) {
  */
 export function buildOsmLink(lat, lng) {
   return `https://www.openstreetmap.org/#map=15/${lat}/${lng}`;
+}
+
+function decodeUrl(url) {
+  try {
+    return decodeURIComponent(url);
+  } catch {
+    return url;
+  }
 }
 
 function isValidLatLng(lat, lng) {

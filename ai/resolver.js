@@ -29,17 +29,6 @@ export async function resolveLocation(input) {
     throw new Error('Network error. Please check your connection and try again.');
   }
 
-  if (response.status === 429) {
-    throw Object.assign(
-      new Error('You have reached the daily limit of location lookups. Please try again tomorrow.'),
-      { code: 'RATE_LIMIT' }
-    );
-  }
-
-  if (!response.ok) {
-    throw new Error('Something went wrong on our end. Please try again shortly.');
-  }
-
   let data;
   try {
     data = await response.json();
@@ -47,10 +36,17 @@ export async function resolveLocation(input) {
     throw new Error('Received an unexpected response. Please try again.');
   }
 
-  if (data.error) {
+  if (response.status === 429) {
+    throw Object.assign(
+      new Error(data.message || 'You have reached the daily limit of location lookups. Please try again tomorrow.'),
+      { code: 'RATE_LIMIT' }
+    );
+  }
+
+  if (!response.ok || data.error) {
     throw Object.assign(
       new Error(data.message || "We couldn't find that location. Try a full address or landmark name."),
-      { code: 'NOT_FOUND' }
+      { code: data.error ? 'NOT_FOUND' : undefined }
     );
   }
 
