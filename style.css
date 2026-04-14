@@ -389,6 +389,15 @@ footer a:hover {
   color: var(--color-text);
 }
 
+footer .footer-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+footer .footer-link:hover {
+  color: var(--color-primary-hover);
+}
+
 /* ── Mobile ────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 540px) {
