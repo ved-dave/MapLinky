@@ -10,6 +10,14 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Theme: runs before paint to avoid flash -->
+  <script>
+    (function () {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
 </head>
 <body>
 
@@ -19,6 +27,10 @@
     <header>
       <h1>Map<span>Linky</span></h1>
       <p>Convert any location into links for Google Maps, Apple Maps &amp; OpenStreetMap</p>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-label">Light</span>
+      </button>
     </header>
 
     <!-- ── Input ────────────────────────────────────────────────────────── -->
@@ -122,6 +134,30 @@
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Theme toggle -->
+  <script>
+    (function () {
+      const toggle = document.getElementById('theme-toggle');
+      const icon = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        label.textContent = theme === 'dark' ? 'Light' : 'Dark';
+      }
+
+      // Apply saved or default theme
+      applyTheme(localStorage.getItem('theme') || 'dark');
+
+      toggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    })();
+  </script>
 
   <!-- App (ES modules) -->
   <script type="module" src="app.js"></script>
